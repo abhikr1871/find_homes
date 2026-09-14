@@ -45,7 +45,7 @@ export default function Layout() {
             <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
               {isAuthenticated ? (
                 <>
-                  <span className="text-sm text-gray-500">{user?.name}</span>
+                  <span className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-md">{user?.email}</span>
                   <button
                     onClick={logout}
                     className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm text-gray-700"

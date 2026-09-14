@@ -7,7 +7,7 @@ export interface LoginResponse {
   expires_in: number;
   user: {
     email: string;
-    name: string;
+    name?: string;
   };
 }
 
