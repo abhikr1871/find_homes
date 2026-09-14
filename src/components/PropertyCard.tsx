@@ -21,8 +21,8 @@ export default function PropertyCard({
   const innerContent = (
     <>
       <div className="flex flex-col mb-4 pr-12">
-        <div className="flex flex-wrap gap-2 items-center mb-1.5">
-          <h3 className="text-lg font-bold text-gray-900 leading-tight group-hover:text-blue-600 transition-colors">
+        <div className="flex items-center gap-2 mb-1.5 overflow-hidden">
+          <h3 className="text-lg font-bold text-gray-900 leading-tight truncate group-hover:text-blue-600 transition-colors">
             {title}
           </h3>
           {isLive !== undefined && (
