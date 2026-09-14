@@ -15,7 +15,7 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({
-  id, type, title, subtitle, isLive, priceStr, badgeStr, isFav, onToggleFav, metrics, path
+  type, title, subtitle, isLive, priceStr, badgeStr, isFav, onToggleFav, metrics, path
 }: PropertyCardProps) {
   return (
     <div className="bg-white rounded-none shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col group border border-gray-200 relative h-full">
