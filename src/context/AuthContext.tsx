@@ -6,7 +6,7 @@ import type { LoginResponse } from '../api/auth';
 interface AuthContextType {
   user: LoginResponse['user'] | null;
   isAuthenticated: boolean;
-  login: (password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -29,8 +29,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (password: string) => {
-    const data = await loginApi(password);
+  const login = async (email: string, password: string) => {
+    const data = await loginApi(email, password);
     // Remember: we found out the API returns 'access_token', not 'token'
     localStorage.setItem('ivy_token', data.access_token);
     localStorage.setItem('ivy_user', JSON.stringify(data.user));

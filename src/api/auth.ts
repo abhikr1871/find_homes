@@ -11,14 +11,10 @@ export interface LoginResponse {
   };
 }
 
-export async function loginApi(password: string): Promise<LoginResponse> {
-  // Use demo1@ivy.homes by default for the assignment
+export async function loginApi(email: string, password: string): Promise<LoginResponse> {
   return apiFetch<LoginResponse>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({
-      email: "demo1@ivy.homes",
-      password,
-    }),
+    body: JSON.stringify({ email, password }),
   });
 }
 

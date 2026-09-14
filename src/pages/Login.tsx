@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
+const DEMO_ACCOUNTS = ['demo1@ivy.homes', 'demo2@ivy.homes', 'demo3@ivy.homes'];
+
 export default function Login() {
+  const [email, setEmail] = useState('demo1@ivy.homes');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,7 +18,7 @@ export default function Login() {
     setLoading(true);
     
     try {
-      await login(password);
+      await login(email, password);
       navigate('/listings');
     } catch (err: any) {
       setError(err.message || 'Failed to login');
@@ -32,22 +35,45 @@ export default function Login() {
             Sign in to Ivy Homes
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Demo Account: demo1@ivy.homes
+            All three demo accounts share the same password
           </p>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm">
               {error}
             </div>
           )}
-          <div className="rounded-md shadow-sm -space-y-px">
+
+          <div className="space-y-4">
+            {/* Email — dropdown of 3 demo accounts */}
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email Address
+              </label>
+              <select
+                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+              >
+                {DEMO_ACCOUNTS.map(acc => (
+                  <option key={acc} value={acc}>{acc}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 required
                 className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Password"
+                placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={loading}
