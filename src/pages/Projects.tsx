@@ -75,9 +75,9 @@ export default function Projects() {
               title={project.apartment_name || 'Project'}
               subtitle={`by ${project.developer_name || 'Builder'} • ${project.locality || ''}`}
               badgeStr={project.project_status}
-              priceStr={`₹${(project.price_min || 0).toFixed(2)} Lakhs - ₹${(project.price_max || 0).toFixed(2)} Cr`}
+              priceStr={`₹${(project.price_min || 0).toFixed(1)}L - ₹${((project.price_max || 0) * 100).toFixed(1)}L`}
               footerText={`RERA: ${project.rera_number || 'N/A'}`}
-              path={`/projects/${project.project_id}`}
+              path=""
               metrics={[
                 { label: 'Total Units', value: project.total_units || '-' },
                 { label: 'Towers', value: project.total_towers || '-' },
