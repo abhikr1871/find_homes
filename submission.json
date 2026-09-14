@@ -1,0 +1,105 @@
+{
+  "api_key": "IVY26-5C142A217217",
+  "candidate": {
+    "name": "Abhijeet Kumar",
+    "email": "",
+    "repo_url": "https://github.com/abhikr1871/find_homes",
+    "demo_url": ""
+  },
+  "answers": {
+    "total_listing_records": 4400,
+    "unique_properties": 4400,
+    "active_listings": 3477,
+    "corrupt_listing_ids": [
+      "100-2000330",
+      "100-2000571",
+      "100-2001154",
+      "100-2002483",
+      "100-2002618",
+      "DWE-2001261",
+      "DWE-2002997",
+      "DWE-2003348",
+      "MAG-2000670",
+      "MAG-2002071",
+      "MAG-2002456",
+      "MAG-2002624",
+      "MAG-2002914",
+      "SQU-2001338",
+      "SQU-2001615",
+      "SQU-2001685",
+      "SQU-2001910",
+      "SQU-2002038",
+      "SQU-2002386",
+      "SQU-2002576",
+      "SQU-2003252",
+      "ZER-2001183",
+      "ZER-2001221",
+      "ZER-2001292",
+      "ZER-2001308",
+      "ZER-2001710",
+      "ZER-2001864",
+      "ZER-2001930",
+      "ZER-2002492",
+      "ZER-2002789"
+    ],
+    "total_monthly_rent": 6717600,
+    "avg_price_per_sqft_2bhk": 17914.95,
+    "costliest_project": {
+      "project_id": "P20165",
+      "price_max_inr": 99.8
+    },
+    "listings_last_7_days": 141,
+    "fake_listing_ids": [],
+    "projects_with_wrong_listing_count": 363
+  },
+  "findings": [
+    {
+      "endpoint": "*",
+      "category": "auth",
+      "documented": "Append it as a query parameter: GET /v1/listings?api_key=IVY26-XXXXXXXXXXXX",
+      "actual": "The API rejects the query parameter with a 401 error and demands the key in the X-API-Key request header.",
+      "how_found": "Attempted to fetch listings using the documented query parameter and received a 401 error explicitly stating to use X-API-Key.",
+      "impact": "Frontend services must inject the X-API-Key header into every request.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "auth",
+      "documented": "Returns active sale listings (No mention of requiring a user session token for public data).",
+      "actual": "Returns 401 'missing bearer token - log in at POST /auth/login first'. A user session token is strictly required to read listings.",
+      "how_found": "Attempted to fetch /v1/listings with just the X-API-Key and received a 401 demanding a Bearer token.",
+      "impact": "Frontend must force a user login and attach the Bearer token before it can display any public listings.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/auth/login",
+      "category": "auth",
+      "documented": "Response 200 contains {\"token\": \"eyJhbGciOi...\"}",
+      "actual": "Response 200 contains {\"access_token\": \"...\"}, the 'token' key does not exist.",
+      "how_found": "Logged in using demo credentials and printed the response keys, finding 'access_token' instead of 'token'.",
+      "impact": "Frontend auth context must extract credentials from 'access_token' or it will crash during login flow.",
+      "evidence": []
+    },
+    {
+      "endpoint": "*",
+      "category": "pagination",
+      "documented": "Every collection endpoint takes page and limit. limit default 20 Maximum 200.",
+      "actual": "The endpoint strictly uses 'offset' instead of 'page', and hard-caps the return limit to 50 records regardless of the 'limit' parameter provided.",
+      "how_found": "Requested page=2 and limit=200, but the API returned offset=0, limit=50, and repeatedly returned the same first 50 records.",
+      "impact": "Frontend infinite scrolling must use offset-based logic (0, 50, 100) instead of page-based logic (1, 2, 3).",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/projects",
+      "category": "units",
+      "documented": "price_min and price_max are in rupees.",
+      "actual": "price_max values are returned in Crores (e.g., 99.8), not raw Rupees.",
+      "how_found": "Analyzed the projects.json dump to find the costliest project and found maximum values like 99.8, which is mathematically impossible for real estate in raw Rupees.",
+      "impact": "Frontend must multiply project prices by 10,000,000 to display correct Rupee amounts, or label them as Crores to prevent severe user confusion.",
+      "evidence": [
+        "P20165",
+        "P20027"
+      ]
+    }
+  ]
+}
