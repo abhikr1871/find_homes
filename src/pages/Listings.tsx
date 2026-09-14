@@ -35,16 +35,6 @@ export default function Listings() {
   const [filterMinPrice, setFilterMinPrice] = useState('');
   const [filterMaxPrice, setFilterMaxPrice] = useState('');
 
-  if (!isAuthenticated) {
-    return (
-      <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
-        <p className="text-gray-500 mb-6">You must be logged in to view property details.</p>
-        <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Go to Login</Link>
-      </div>
-    );
-  }
-
   const fetchListings = useCallback(async (currentOffset: number, append: boolean = false) => {
     try {
       setLoading(true);
@@ -74,6 +64,16 @@ export default function Listings() {
   useEffect(() => {
     fetchListings(0, false);
   }, [fetchListings]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+        <p className="text-gray-500 mb-6">You must be logged in to view property details.</p>
+        <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Go to Login</Link>
+      </div>
+    );
+  }
 
   const loadMore = () => {
     if (!loading && hasMore) {

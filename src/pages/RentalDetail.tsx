@@ -11,6 +11,13 @@ export default function RentalDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (!id) return;
+    apiFetch<Rental>(`/v1/rentals/${id}`)
+      .then(data => { setRental(data); setLoading(false); })
+      .catch(err => { setError(err.message); setLoading(false); });
+  }, [id]);
+
   if (!isAuthenticated) {
     return (
       <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
@@ -19,13 +26,6 @@ export default function RentalDetail() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (!id) return;
-    apiFetch<Rental>(`/v1/rentals/${id}`)
-      .then(data => { setRental(data); setLoading(false); })
-      .catch(err => { setError(err.message); setLoading(false); });
-  }, [id]);
 
   if (loading) return <div className="flex justify-center py-20 text-gray-500">Loading...</div>;
   if (error || !rental) return (

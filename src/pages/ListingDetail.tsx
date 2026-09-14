@@ -14,16 +14,6 @@ export default function ListingDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  if (!isAuthenticated) {
-    return (
-      <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
-        <p className="text-gray-500 mb-6">You must be logged in to view listing details.</p>
-        <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Go to Login</Link>
-      </div>
-    );
-  }
-
   useEffect(() => {
     if (!id) return;
     setLoading(true);
@@ -49,6 +39,16 @@ export default function ListingDetail() {
         setLoading(false);
       });
   }, [id]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+        <p className="text-gray-500 mb-6">You must be logged in to view listing details.</p>
+        <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Go to Login</Link>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

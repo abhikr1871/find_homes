@@ -30,6 +30,13 @@ export default function Insights() {
   const [allListings, setAllListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    // Fetch first page to get stats (enough for demo)
+    apiFetch<PaginatedResponse<Listing>>('/v1/listings?offset=0&limit=50')
+      .then(data => { setAllListings(data.results); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
   if (!isAuthenticated) {
     return (
       <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
@@ -38,13 +45,6 @@ export default function Insights() {
       </div>
     );
   }
-
-  useEffect(() => {
-    // Fetch first page to get stats (enough for demo)
-    apiFetch<PaginatedResponse<Listing>>('/v1/listings?offset=0&limit=50')
-      .then(data => { setAllListings(data.results); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
 
   // Locality breakdown
   const localityMap: Record<string, number[]> = {};
