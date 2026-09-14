@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../api/client';
 import type { Project, PaginatedResponse } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Projects() {
+  const { isAuthenticated } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState('');
+
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+        <p className="text-gray-500 mb-6">You must be logged in to view developer projects.</p>
+        <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Go to Login</Link>
+      </div>
+    );
+  }
 
   const fetchProjects = async (currentOffset: number, append: boolean = false) => {
     try {

@@ -1,14 +1,9 @@
-
-import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Layout() {
   const { isAuthenticated, logout, user } = useAuth();
   const location = useLocation();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
 
   const navigation = [
     { name: 'Listings', href: '/listings' },
@@ -47,13 +42,24 @@ export default function Layout() {
               </div>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
-              <span className="text-sm text-gray-500">{user?.name}</span>
-              <button
-                onClick={logout}
-                className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm text-gray-700"
-              >
-                Logout
-              </button>
+              {isAuthenticated ? (
+                <>
+                  <span className="text-sm text-gray-500">{user?.name}</span>
+                  <button
+                    onClick={logout}
+                    className="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm text-gray-700"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm font-medium text-white"
+                >
+                  Sign in
+                </Link>
+              )}
             </div>
           </div>
         </div>

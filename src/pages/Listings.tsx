@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '../api/client';
 import type { Listing, PaginatedResponse } from '../types';
 import { useFavourites } from '../hooks/useFavourites';
+import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Listings() {
+  const { isAuthenticated } = useAuth();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [offset, setOffset] = useState(0);
@@ -15,15 +18,23 @@ export default function Listings() {
   // Defensive Filters
   const [filterBhk, setFilterBhk] = useState<number | ''>('');
 
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+        <p className="text-gray-500 mb-6">You must be logged in to view property details.</p>
+        <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Go to Login</Link>
+      </div>
+    );
+  }
+
   const fetchListings = async (currentOffset: number, append: boolean = false) => {
     try {
       setLoading(true);
       setError('');
       
-      // We know the API lies about the page parameter, so we use offset directly!
       const data = await apiFetch<PaginatedResponse<Listing>>(`/v1/listings?offset=${currentOffset}&limit=50`);
       
-      // DEFENSIVE PROGRAMMING: Filter out corrupted records (e.g. price <= 0, floor > total_floors)
       const sanitizedResults = data.results.filter(item => {
         if (item.price <= 0) return false;
         if (item.floor && item.total_floors && item.floor > item.total_floors) return false;
@@ -52,7 +63,6 @@ export default function Listings() {
     }
   };
 
-  // DEFENSIVE PROGRAMMING: The API filters might lie, so we filter the displayed array in the browser!
   const displayedListings = listings.filter(item => {
     if (filterBhk !== '' && item.bedroom !== filterBhk) return false;
     return true;
@@ -63,7 +73,6 @@ export default function Listings() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Property Listings</h1>
         
-        {/* Client-Side Filter UI */}
         <div className="flex items-center space-x-4">
           <label className="text-sm font-medium text-gray-700">Filter BHK:</label>
           <select 
@@ -102,40 +111,40 @@ export default function Listings() {
               <div className="p-6 flex-1 pt-12">
                 <div className="flex justify-between items-start">
                   <div>
-                  <h3 className="text-lg font-bold text-gray-900 truncate">
-                    {listing.apartment_name || 'Independent Property'}
-                  </h3>
-                  <p className="text-sm text-gray-500">{listing.locality}</p>
+                    <h3 className="text-lg font-bold text-gray-900 truncate">
+                      {listing.apartment_name || 'Independent Property'}
+                    </h3>
+                    <p className="text-sm text-gray-500">{listing.locality}</p>
+                  </div>
+                  <span className={`px-2 py-1 text-xs font-semibold rounded-full ${listing.is_live ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {listing.is_live ? 'Live' : 'Offline'}
+                  </span>
                 </div>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${listing.is_live ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {listing.is_live ? 'Live' : 'Offline'}
-                </span>
-              </div>
-              
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-600">
-                <div>
-                  <span className="font-semibold text-gray-900">{listing.bedroom}</span> BHK
+                
+                <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-600">
+                  <div>
+                    <span className="font-semibold text-gray-900">{listing.bedroom}</span> BHK
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-900">{listing.bathroom}</span> Baths
+                  </div>
+                  <div>
+                    <span className="font-semibold text-gray-900">{listing.carpet_area}</span> sqft
+                  </div>
+                  <div>
+                    Floor <span className="font-semibold text-gray-900">{listing.floor}</span> of {listing.total_floors}
+                  </div>
                 </div>
-                <div>
-                  <span className="font-semibold text-gray-900">{listing.bathroom}</span> Baths
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">{listing.carpet_area}</span> sqft
-                </div>
-                <div>
-                  Floor <span className="font-semibold text-gray-900">{listing.floor}</span> of {listing.total_floors}
-                </div>
-              </div>
 
-              <div className="mt-6">
-                <span className="text-2xl font-bold text-blue-600">
-                  ₹{(listing.price / 100000).toFixed(2)}L
-                </span>
+                <div className="mt-6">
+                  <span className="text-2xl font-bold text-blue-600">
+                    ₹{(listing.price / 100000).toFixed(2)}L
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
       </div>
 
       {hasMore && (

@@ -1,13 +1,26 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../api/client';
 import type { Rental, PaginatedResponse } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Rentals() {
+  const { isAuthenticated } = useAuth();
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [loading, setLoading] = useState(false);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState('');
+
+  if (!isAuthenticated) {
+    return (
+      <div className="text-center py-20 bg-white rounded-lg shadow mt-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Authentication Required</h2>
+        <p className="text-gray-500 mb-6">You must be logged in to view property details.</p>
+        <Link to="/login" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Go to Login</Link>
+      </div>
+    );
+  }
 
   const fetchRentals = async (currentOffset: number, append: boolean = false) => {
     try {
