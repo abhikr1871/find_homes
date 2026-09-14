@@ -99,24 +99,29 @@ export default function Insights() {
     { title: 'Auth header, not query param', detail: 'Docs say ?api_key=... — API demands X-API-Key header', category: 'auth' },
     { title: 'Bearer token required for all data', detail: 'Docs imply listings are public — API returns 401 without login', category: 'auth' },
     { title: 'access_token not token', detail: 'Login returns access_token, expires in 15 mins not 24h', category: 'auth' },
-    { title: '/auth/refresh undocumented', detail: 'Server exposes working /auth/refresh endpoint for session extension', category: 'missing' },
+    { title: 'POST /auth/logout does not revoke', detail: 'Server returns stateless note; Bearer tokens remain operational after logout', category: 'auth' },
+    { title: '/auth/refresh undocumented', detail: 'Server exposes working /auth/refresh endpoint for session extension', category: 'undocumented_endpoint' },
     { title: '/health uses IST', detail: 'Returns server_time with +05:30 IST offset, not UTC', category: 'timestamps' },
     { title: 'offset not page', detail: 'Docs say page=1,2,3 — API only respects offset=0,50,100', category: 'pagination' },
     { title: 'limit hard-capped at 50', detail: 'Docs say max 200 — API ignores higher limits', category: 'pagination' },
-    { title: 'total field is wrong', detail: 'API reports 4082 total, but actually returns 4400 records', category: 'pagination' },
-    { title: 'project_id filter ignored', detail: 'project_id query param is completely ignored by server', category: 'filters' },
-    { title: 'price_max in Crores not Rupees', detail: 'Docs say rupees — projects return values like 99.8 (= ₹99.8 Cr)', category: 'units' },
+    { title: 'Listings total count wrong', detail: 'API reports total=4082, but actually returns 4400 records', category: 'pagination' },
+    { title: 'Rentals total count wrong', detail: 'API reports total=1531, but actually returns 1650 records', category: 'pagination' },
+    { title: 'Projects total count wrong', detail: 'API reports total=436, but actually returns 470 records', category: 'pagination' },
+    { title: 'project_id filter ignored', detail: 'project_id query param on /v1/listings is completely ignored by server', category: 'filters' },
+    { title: 'min_price/max_price filters ignored', detail: 'Price range params on /v1/listings are silently ignored', category: 'filters' },
+    { title: 'bedroom/furnishing filters ignored', detail: 'API accepts but silently ignores bedroom and furnishing on listings', category: 'filters' },
+    { title: 'Projects price units mismatched', detail: 'price_max in Crores, price_min in Lakhs; 348 projects have price_min > price_max', category: 'units' },
     { title: 'MagicHomes area in sq meters', detail: 'carpet_area is in sq meters, not sq feet as documented', category: 'units' },
-    { title: 'bedroom/furnishing filters ignored', detail: 'API accepts but silently ignores these filter params', category: 'filters' },
     { title: 'Inactive listings NOT excluded', detail: 'Docs say active-only — API returns 923 is_live=false listings', category: 'completeness' },
     { title: 'Sorting by price corrupts data', detail: 'sort_by=price asc returns negative prices (e.g. -19260000)', category: 'sorting' },
-    { title: '/v1/listing/:id path wrong', detail: 'Docs use singular — actual working path is plural /v1/listings/:id', category: 'missing' },
-    { title: '/similar endpoint 404', detail: 'Documented similar listings endpoint does not exist', category: 'missing' },
-    { title: '/v1/favourites all 404', detail: 'All 3 favourites CRUD endpoints return 404', category: 'missing' },
-    { title: '/v1/analytics/summary 404', detail: 'Insights summary endpoint does not exist', category: 'missing' },
-    { title: '818 fake listings', detail: 'Same phone number listed across 10+ different properties', category: 'fraud' },
-    { title: '363 wrong project counts', detail: 'Projects report total_listings that disagrees with actual', category: 'consistency' },
+    { title: 'Future listing timestamps', detail: '10 listings have timestamps set in late 2026 and 2027 (up to June 2027)', category: 'timestamps' },
+    { title: 'Operations verification is false', detail: '535 out of 818 fake listings are marked is_verified=true', category: 'fraud' },
+    { title: '818 fake lead-gen listings', detail: 'Same phone number listed across 10+ different properties', category: 'fraud' },
+    { title: '30 corrupt listing records', detail: 'Physically impossible values (floor > total_floors, carpet > super_built_up)', category: 'data_quality' },
+    { title: '363 wrong project counts', detail: 'Projects report total_listings that disagrees with actual listing count', category: 'consistency' },
     { title: '3 duplicate property records', detail: 'Same physical property described by 2 different listing_ids', category: 'duplicates' },
+    { title: '/v1/listing/:id path wrong', detail: 'Docs use singular — actual working path is plural /v1/listings/:id', category: 'missing_endpoint' },
+    { title: '/similar and /favourites 404', detail: 'Documented /similar and all 3 /favourites endpoints do not exist', category: 'missing_endpoint' },
   ];
 
   const categoryColors: Record<string, string> = {
@@ -124,9 +129,13 @@ export default function Insights() {
     pagination: 'bg-orange-100 text-orange-700',
     units: 'bg-yellow-100 text-yellow-700',
     filters: 'bg-pink-100 text-pink-700',
+    sorting: 'bg-rose-100 text-rose-700',
+    timestamps: 'bg-teal-100 text-teal-700',
     completeness: 'bg-purple-100 text-purple-700',
-    missing: 'bg-gray-100 text-gray-700',
+    missing_endpoint: 'bg-gray-100 text-gray-700',
+    undocumented_endpoint: 'bg-emerald-100 text-emerald-700',
     fraud: 'bg-red-200 text-red-800',
+    data_quality: 'bg-amber-100 text-amber-800',
     consistency: 'bg-blue-100 text-blue-700',
     duplicates: 'bg-indigo-100 text-indigo-700',
   };
@@ -190,7 +199,7 @@ export default function Insights() {
       {/* API Lies Summary */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-1">API Documentation Lies Found</h2>
-        <p className="text-sm text-gray-500 mb-4">20 discrepancies between the API reference and the actual running API</p>
+        <p className="text-sm text-gray-500 mb-4">26 discrepancies between the API reference and the actual running API</p>
         <div className="space-y-3">
           {apiLies.map((lie, i) => (
             <div key={i} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
