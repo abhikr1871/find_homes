@@ -5,6 +5,7 @@ import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Listings from './pages/Listings';
+import ListingDetail from './pages/ListingDetail';
 import Rentals from './pages/Rentals';
 import Projects from './pages/Projects';
 import Favourites from './pages/Favourites';
@@ -24,6 +25,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<Navigate to="/listings" replace />} />
               <Route path="/listings" element={<Listings />} />
+              <Route path="/listings/:id" element={<ListingDetail />} />
               <Route path="/rentals" element={<Rentals />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/favourites" element={<Favourites />} />
