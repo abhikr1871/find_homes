@@ -64,7 +64,7 @@ export default function Rentals() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {rentals.map((rental, idx) => (
-          <div key={`${rental.listing_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col">
+          <Link key={`${rental.listing_id}-${idx}`} to={`/rentals/${rental.listing_id}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col hover:shadow-md transition-shadow">
             <div className="p-6 flex-1">
               <div className="flex justify-between items-start">
                 <div>
@@ -100,7 +100,7 @@ export default function Rentals() {
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

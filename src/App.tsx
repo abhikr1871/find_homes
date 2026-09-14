@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Listings from './pages/Listings';
 import ListingDetail from './pages/ListingDetail';
 import Rentals from './pages/Rentals';
+import RentalDetail from './pages/RentalDetail';
 import Projects from './pages/Projects';
 import Favourites from './pages/Favourites';
 import Insights from './pages/Insights';
@@ -27,6 +28,7 @@ function App() {
               <Route path="/listings" element={<Listings />} />
               <Route path="/listings/:id" element={<ListingDetail />} />
               <Route path="/rentals" element={<Rentals />} />
+              <Route path="/rentals/:id" element={<RentalDetail />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/favourites" element={<Favourites />} />
               <Route path="/insights" element={<Insights />} />

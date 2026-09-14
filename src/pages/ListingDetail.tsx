@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiFetch } from '../api/client';
-import type { Listing } from '../types';
+import type { Listing, PaginatedResponse } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useFavourites } from '../hooks/useFavourites';
 
@@ -10,6 +10,7 @@ export default function ListingDetail() {
   const { isAuthenticated } = useAuth();
   const { addFavourite, removeFavourite, isFavourite } = useFavourites();
   const [listing, setListing] = useState<Listing | null>(null);
+  const [similar, setSimilar] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -30,6 +31,18 @@ export default function ListingDetail() {
       .then(data => {
         setListing(data);
         setLoading(false);
+        // Build similar listings client-side (documented /similar endpoint returns 404)
+        apiFetch<PaginatedResponse<Listing>>(`/v1/listings?offset=0&limit=50`)
+          .then(res => {
+            const sims = res.results.filter(l =>
+              l.listing_id !== data.listing_id &&
+              l.locality === data.locality &&
+              l.bedroom === data.bedroom &&
+              l.price >= data.price * 0.85 &&
+              l.price <= data.price * 1.15
+            ).slice(0, 4);
+            setSimilar(sims);
+          }).catch(() => {});
       })
       .catch(err => {
         setError(err.message || 'Failed to fetch listing');
@@ -163,6 +176,24 @@ export default function ListingDetail() {
           </div>
         </div>
       </div>
+
+      {/* Similar Properties — built client-side since /similar endpoint returns 404 */}
+      {similar.length > 0 && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-1">Similar Properties</h2>
+          <p className="text-xs text-gray-400 mb-4">Same locality · Same BHK · Price ±15% (built client-side — documented /similar endpoint is 404)</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {similar.map(s => (
+              <Link key={s.listing_id} to={`/listings/${s.listing_id}`} className="block border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div className="font-semibold text-gray-900 truncate text-sm">{s.apartment_name || 'Property'}</div>
+                <div className="text-xs text-gray-500 capitalize mt-0.5">{s.locality}</div>
+                <div className="text-blue-600 font-bold mt-2">₹{(s.price / 100000).toFixed(1)}L</div>
+                <div className="text-xs text-gray-400">{s.carpet_area} sqft · {s.bedroom} BHK</div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

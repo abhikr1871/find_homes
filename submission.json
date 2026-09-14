@@ -43,7 +43,7 @@
       "ZER-2002789"
     ],
     "total_monthly_rent": 6717600,
-    "avg_price_per_sqft_2bhk": 17914.95,
+    "avg_price_per_sqft_2bhk": 17967.85,
     "costliest_project": {
       "project_id": "P20165",
       "price_max_inr": 998000000
@@ -1042,6 +1042,63 @@
       "actual": "Returns HTTP 404 Not Found. This endpoint does not exist at any path we could discover.",
       "how_found": "Sent GET /v1/analytics/summary and GET /v1/analytics/ with valid auth headers. Both returned 404.",
       "impact": "The insights screen must be built using client-side aggregation of raw listing data.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "completeness",
+      "documented": "Returns active sale listings only. Inactive, expired and withdrawn listings are excluded server side.",
+      "actual": "Returns both is_live=true and is_live=false listings. 923 out of 4400 records have is_live=false. Inactive listings are NOT excluded server-side.",
+      "how_found": "After dumping all 4400 listings, counted records with is_live=false. Found 923 inactive records in the dataset, contradicting the docs which claim only active listings are returned.",
+      "impact": "Frontend cannot assume all returned listings are safe to show. Must check is_live field on every record before displaying to users.",
+      "evidence": [
+        "100-2000051",
+        "100-2000061",
+        "100-2000063",
+        "100-2000103",
+        "100-2000123",
+        "100-2000142",
+        "100-2000241",
+        "100-2000295",
+        "100-2000305",
+        "100-2000315",
+        "100-2000333",
+        "100-2000371",
+        "100-2000399",
+        "100-2000402",
+        "100-2000446",
+        "100-2000452",
+        "100-2000476",
+        "100-2000487",
+        "100-2000501",
+        "100-2000506"
+      ]
+    },
+    {
+      "endpoint": "/v1/listing/{id}",
+      "category": "missing_endpoint",
+      "documented": "GET /v1/listing/{listing_id} returns a single listing object.",
+      "actual": "Returns HTTP 404. The correct working path is GET /v1/listings/{listing_id} (plural). The documentation uses singular 'listing' which does not exist.",
+      "how_found": "Tested GET /v1/listing/100-2000006 \u2014 got 404. Then tested GET /v1/listings/100-2000006 \u2014 got 200 with full listing object.",
+      "impact": "Any frontend following the documented singular path for listing detail pages would get 404 errors.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listings/{id}/similar",
+      "category": "missing_endpoint",
+      "documented": "Returns up to ten comparable listings \u2014 same locality, same bedroom count, price within 15%.",
+      "actual": "Returns HTTP 404. This endpoint does not exist at all.",
+      "how_found": "Tested GET /v1/listings/100-2000006/similar with valid auth headers. Got 404.",
+      "impact": "Similar listings functionality must be built client-side by filtering the existing dataset.",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/favourites",
+      "category": "missing_endpoint",
+      "documented": "GET /v1/favourites returns saved listings. POST /v1/favourites saves a listing. DELETE /v1/favourites/{id} removes one.",
+      "actual": "All three endpoints return HTTP 404. The entire favourites API does not exist.",
+      "how_found": "Tested GET /v1/favourites with valid Bearer token and X-API-Key headers. Got 404. Repeated for /favourites and /v1/favourites.",
+      "impact": "Saved listings feature must be implemented entirely client-side using localStorage, keyed per user session.",
       "evidence": []
     }
   ]
