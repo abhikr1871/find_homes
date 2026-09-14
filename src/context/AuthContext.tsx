@@ -6,6 +6,7 @@ import type { LoginResponse } from '../api/auth';
 interface AuthContextType {
   user: LoginResponse['user'] | null;
   isAuthenticated: boolean;
+  initializing: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -14,9 +15,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<LoginResponse['user'] | null>(null);
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    // Restore session on page refresh (Assignment requirement)
     const token = localStorage.getItem('ivy_token');
     const savedUser = localStorage.getItem('ivy_user');
     if (token && savedUser) {
@@ -27,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('ivy_user');
       }
     }
+    setInitializing(false);
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -49,8 +51,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, initializing, login, logout }}>
+      {initializing ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-gray-400 text-sm">Loading...</div>
+        </div>
+      ) : children}
     </AuthContext.Provider>
   );
 }
