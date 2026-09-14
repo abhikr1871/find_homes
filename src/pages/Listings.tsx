@@ -4,6 +4,7 @@ import { apiFetch } from '../api/client';
 import type { Listing, PaginatedResponse } from '../types';
 import { useFavourites } from '../hooks/useFavourites';
 import { useAuth } from '../context/AuthContext';
+import SkeletonCard from '../components/SkeletonCard';
 
 // All localities from the dataset
 const LOCALITIES = [
@@ -177,13 +178,24 @@ export default function Listings() {
       )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {displayedListings.map((listing, idx) => {
-          const isFav = isFavourite(listing.listing_id);
-          return (
-            <div key={`${listing.listing_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col relative hover:shadow-md transition-shadow">
-              <button
-                onClick={() => isFav ? removeFavourite(listing.listing_id) : addFavourite(listing)}
-                className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-50 z-10"
+        {loading && displayedListings.length === 0 ? (
+          // Skeleton loaders
+          Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+        ) : (
+          displayedListings.map((listing, idx) => {
+            const isFav = isFavourite(listing.listing_id);
+            return (
+              <div key={`${listing.listing_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col relative hover:shadow-md transition-shadow">
+                {/* Image Placeholder */}
+                <div className="h-48 bg-gradient-to-r from-blue-50 to-indigo-50 relative flex items-center justify-center border-b border-gray-100">
+                  <span className="text-gray-300">
+                    <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                  </span>
+                </div>
+                
+                <button
+                  onClick={() => isFav ? removeFavourite(listing.listing_id) : addFavourite(listing)}
+                  className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-50 z-10 transition-transform active:scale-95"
                 title={isFav ? "Remove from Favourites" : "Add to Favourites"}
               >
                 {isFav ? '❤️' : '🤍'}
@@ -218,7 +230,8 @@ export default function Listings() {
               </Link>
             </div>
           );
-        })}
+        })
+      )}
       </div>
 
       {displayedListings.length === 0 && !loading && (

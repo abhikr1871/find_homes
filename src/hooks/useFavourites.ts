@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import type { Listing } from '../types';
+import toast from 'react-hot-toast';
 
 export function useFavourites() {
   const { user } = useAuth();
@@ -13,7 +14,11 @@ export function useFavourites() {
     if (storageKey) {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
-        setFavourites(JSON.parse(saved));
+        try {
+          setFavourites(JSON.parse(saved));
+        } catch(e) {
+          setFavourites([]);
+        }
       } else {
         setFavourites([]);
       }
@@ -21,12 +26,16 @@ export function useFavourites() {
   }, [storageKey]);
 
   const addFavourite = (listing: Listing) => {
-    if (!storageKey) return;
+    if (!storageKey) {
+      toast.error('Please log in to save properties');
+      return;
+    }
     setFavourites(prev => {
       // Prevent duplicates
       if (prev.find(f => f.listing_id === listing.listing_id)) return prev;
       const next = [...prev, listing];
       localStorage.setItem(storageKey, JSON.stringify(next));
+      toast.success('Added to saved properties', { icon: '❤️' });
       return next;
     });
   };
@@ -36,6 +45,7 @@ export function useFavourites() {
     setFavourites(prev => {
       const next = prev.filter(f => f.listing_id !== listing_id);
       localStorage.setItem(storageKey, JSON.stringify(next));
+      toast.success('Removed from saved properties', { icon: '🗑️' });
       return next;
     });
   };
