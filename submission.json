@@ -1100,6 +1100,72 @@
       "how_found": "Tested GET /v1/favourites with valid Bearer token and X-API-Key headers. Got 404. Repeated for /favourites and /v1/favourites.",
       "impact": "Saved listings feature must be implemented entirely client-side using localStorage, keyed per user session.",
       "evidence": []
+    },
+    {
+      "endpoint": "/auth/refresh",
+      "category": "undocumented_endpoint",
+      "documented": "Explicitly claims there is no refresh flow in the API",
+      "actual": "Server exposes working /auth/refresh endpoint for renewing access tokens using refresh_token",
+      "how_found": "Observed refresh_url in POST /auth/login response",
+      "impact": "Enables seamless session extension",
+      "evidence": []
+    },
+    {
+      "endpoint": "/health",
+      "category": "timestamps",
+      "documented": "Returns service status and server clock in UTC with Z suffix",
+      "actual": "Returns server_time carrying explicit +05:30 IST offset, plus timezone Asia/Kolkata and reference_date fields",
+      "how_found": "Called GET /health endpoint",
+      "impact": "Minor timezone parsing adjustments needed",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "pagination",
+      "documented": "total field reports the exact number of records matching filters",
+      "actual": "total field reports 4082, while the actual retrievable count across all pages is 4400",
+      "how_found": "Compared total field in response payload against the actual number of records retrieved by paging to the end",
+      "impact": "Pagination logic relying on total field will terminate early and miss 318 records",
+      "evidence": []
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "units",
+      "documented": "Area is in integer square feet everywhere in the API",
+      "actual": "Listings from magichomes report carpet_area and super_built_up_area in square meters instead of square feet",
+      "how_found": "Calculated price per sq ft for magichomes listings yielding >80,000 INR/sqft for standard apartments",
+      "impact": "Carpet area requires conversion (* 10.7639) to display accurate square footage",
+      "evidence": [
+        "MAG-2001953",
+        "MAG-2000209",
+        "MAG-2001533",
+        "MAG-2000429",
+        "MAG-2003550",
+        "MAG-2000503",
+        "MAG-2003517",
+        "MAG-2002365",
+        "MAG-2000252",
+        "MAG-2002456",
+        "MAG-2000202",
+        "MAG-2002761",
+        "MAG-2002387",
+        "MAG-2004202",
+        "MAG-2000100",
+        "MAG-2001362",
+        "MAG-2001852",
+        "MAG-2000139",
+        "MAG-2002154",
+        "MAG-2001148"
+      ]
+    },
+    {
+      "endpoint": "/v1/listings",
+      "category": "sorting",
+      "documented": "sort_by=price sorts listings by price in rupees",
+      "actual": "Sorting by price ascending returns corrupted negative price integers (-19260000)",
+      "how_found": "Called GET /v1/listings?sort_by=price&order=asc",
+      "impact": "Sorting by price on server corrupts price values",
+      "evidence": []
     }
   ]
 }

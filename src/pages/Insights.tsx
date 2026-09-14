@@ -98,12 +98,18 @@ export default function Insights() {
   const apiLies = [
     { title: 'Auth header, not query param', detail: 'Docs say ?api_key=... — API demands X-API-Key header', category: 'auth' },
     { title: 'Bearer token required for all data', detail: 'Docs imply listings are public — API returns 401 without login', category: 'auth' },
-    { title: 'access_token not token', detail: 'Login response uses access_token, docs say token', category: 'auth' },
+    { title: 'access_token not token', detail: 'Login returns access_token, expires in 15 mins not 24h', category: 'auth' },
+    { title: '/auth/refresh undocumented', detail: 'Server exposes working /auth/refresh endpoint for session extension', category: 'missing' },
+    { title: '/health uses IST', detail: 'Returns server_time with +05:30 IST offset, not UTC', category: 'timestamps' },
     { title: 'offset not page', detail: 'Docs say page=1,2,3 — API only respects offset=0,50,100', category: 'pagination' },
     { title: 'limit hard-capped at 50', detail: 'Docs say max 200 — API ignores higher limits', category: 'pagination' },
+    { title: 'total field is wrong', detail: 'API reports 4082 total, but actually returns 4400 records', category: 'pagination' },
+    { title: 'project_id filter ignored', detail: 'project_id query param is completely ignored by server', category: 'filters' },
     { title: 'price_max in Crores not Rupees', detail: 'Docs say rupees — projects return values like 99.8 (= ₹99.8 Cr)', category: 'units' },
+    { title: 'MagicHomes area in sq meters', detail: 'carpet_area is in sq meters, not sq feet as documented', category: 'units' },
     { title: 'bedroom/furnishing filters ignored', detail: 'API accepts but silently ignores these filter params', category: 'filters' },
     { title: 'Inactive listings NOT excluded', detail: 'Docs say active-only — API returns 923 is_live=false listings', category: 'completeness' },
+    { title: 'Sorting by price corrupts data', detail: 'sort_by=price asc returns negative prices (e.g. -19260000)', category: 'sorting' },
     { title: '/v1/listing/:id path wrong', detail: 'Docs use singular — actual working path is plural /v1/listings/:id', category: 'missing' },
     { title: '/similar endpoint 404', detail: 'Documented similar listings endpoint does not exist', category: 'missing' },
     { title: '/v1/favourites all 404', detail: 'All 3 favourites CRUD endpoints return 404', category: 'missing' },
@@ -184,7 +190,7 @@ export default function Insights() {
       {/* API Lies Summary */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-1">API Documentation Lies Found</h2>
-        <p className="text-sm text-gray-500 mb-4">15 discrepancies between the API reference and the actual running API</p>
+        <p className="text-sm text-gray-500 mb-4">20 discrepancies between the API reference and the actual running API</p>
         <div className="space-y-3">
           {apiLies.map((lie, i) => (
             <div key={i} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
