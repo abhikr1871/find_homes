@@ -33,8 +33,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const data = await loginApi(email, password);
-    // Remember: we found out the API returns 'access_token', not 'token'
     localStorage.setItem('ivy_token', data.access_token);
+    if (data.refresh_token) {
+      localStorage.setItem('ivy_refresh_token', data.refresh_token);
+    }
     localStorage.setItem('ivy_user', JSON.stringify(data.user));
     setUser(data.user);
   };
@@ -46,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Logout API failed, but clearing local session anyway.");
     }
     localStorage.removeItem('ivy_token');
+    localStorage.removeItem('ivy_refresh_token');
     localStorage.removeItem('ivy_user');
     setUser(null);
   };
