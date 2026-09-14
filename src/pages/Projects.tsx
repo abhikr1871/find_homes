@@ -71,16 +71,18 @@ export default function Projects() {
           projects.map((project, idx) => (
             <PropertyCard
               key={`${project.project_id}-${idx}`}
-              id={project.project_id}
               type="project"
-              title={project.name || 'Project'}
-              subtitle={project.builder_name || 'Builder'}
-              badgeStr={project.locality}
-              priceStr={`₹${(project.price_min).toFixed(1)}L - ₹${(project.price_max * 100).toFixed(1)}L`}
+              title={project.apartment_name || 'Project'}
+              subtitle={`by ${project.developer_name || 'Builder'} • ${project.locality || ''}`}
+              badgeStr={project.project_status}
+              priceStr={`₹${(project.price_min || 0).toFixed(2)} Lakhs - ₹${(project.price_max || 0).toFixed(2)} Cr`}
+              footerText={`RERA: ${project.rera_number || 'N/A'}`}
               path={`/projects/${project.project_id}`}
               metrics={[
-                { label: 'City', value: project.city || '-' },
-                { label: 'Listings', value: project.total_listings || '0' }
+                { label: 'Total Units', value: project.total_units || '-' },
+                { label: 'Towers', value: project.total_towers || '-' },
+                { label: 'Area', value: `${project.min_area_sqft || 0} - ${project.max_area_sqft || 0} sq ft` },
+                { label: 'Reported Listings', value: project.total_listings || '0' }
               ]}
             />
           ))

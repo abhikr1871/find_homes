@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 interface PropertyCardProps {
-  id: string;
+  id?: string;
   type: 'listing' | 'rental' | 'project';
   title: string;
   subtitle: string;
@@ -11,11 +11,12 @@ interface PropertyCardProps {
   isFav?: boolean;
   onToggleFav?: () => void;
   metrics: { label: string; value: string | number }[];
+  footerText?: string;
   path: string;
 }
 
 export default function PropertyCard({
-  type, title, subtitle, isLive, priceStr, badgeStr, isFav, onToggleFav, metrics, path
+  type, title, subtitle, isLive, priceStr, badgeStr, isFav, onToggleFav, metrics, footerText, path
 }: PropertyCardProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col group border border-gray-200 relative h-full">
@@ -68,6 +69,7 @@ export default function PropertyCard({
           <div>
             <span className="block text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-1">{type === 'rental' ? 'Monthly Rent' : 'Price'}</span>
             <span className="text-2xl font-black text-gray-900 tracking-tight">{priceStr}</span>
+            {footerText && <span className="block text-[10px] text-gray-400 mt-1 uppercase tracking-wider">{footerText}</span>}
           </div>
           <span className="text-sm font-semibold text-blue-600 border border-blue-100 bg-blue-50 px-4 py-2 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
             View
