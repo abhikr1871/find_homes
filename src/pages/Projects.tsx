@@ -3,6 +3,7 @@ import { apiFetch } from '../api/client';
 import type { Project, PaginatedResponse } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import SkeletonCard from '../components/SkeletonCard';
 
 export default function Projects() {
   const { isAuthenticated } = useAuth();
@@ -63,9 +64,17 @@ export default function Projects() {
       )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {projects.map((project, idx) => (
-          <div key={`${project.project_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col">
-            <div className="p-6 flex-1">
+        {loading && projects.length === 0 ? (
+          Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+        ) : (
+          projects.map((project, idx) => (
+            <div key={`${project.project_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+              <div className="h-48 bg-gradient-to-r from-purple-50 to-pink-50 relative flex items-center justify-center border-b border-gray-100">
+                <span className="text-gray-300">
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </span>
+              </div>
+              <div className="p-6 flex-1">
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 truncate">
@@ -96,7 +105,8 @@ export default function Projects() {
               </div>
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
 
       {hasMore && (

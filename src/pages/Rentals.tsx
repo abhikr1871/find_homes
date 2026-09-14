@@ -3,6 +3,7 @@ import { apiFetch } from '../api/client';
 import type { Rental, PaginatedResponse } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import SkeletonCard from '../components/SkeletonCard';
 
 export default function Rentals() {
   const { isAuthenticated } = useAuth();
@@ -63,9 +64,17 @@ export default function Rentals() {
       )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {rentals.map((rental, idx) => (
-          <Link key={`${rental.listing_id}-${idx}`} to={`/rentals/${rental.listing_id}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-            <div className="p-6 flex-1">
+        {loading && rentals.length === 0 ? (
+          Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+        ) : (
+          rentals.map((rental, idx) => (
+            <Link key={`${rental.listing_id}-${idx}`} to={`/rentals/${rental.listing_id}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+              <div className="h-48 bg-gradient-to-r from-emerald-50 to-teal-50 relative flex items-center justify-center border-b border-gray-100">
+                <span className="text-gray-300">
+                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                </span>
+              </div>
+              <div className="p-6 flex-1">
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 truncate">
@@ -101,7 +110,8 @@ export default function Rentals() {
               </div>
             </div>
           </Link>
-        ))}
+          ))
+        )}
       </div>
 
       {hasMore && (

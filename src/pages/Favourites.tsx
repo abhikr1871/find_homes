@@ -30,16 +30,19 @@ export default function Favourites() {
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {favourites.map((listing, idx) => (
-            <div key={`${listing.listing_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col relative border-2 border-red-100">
+            <div key={`${listing.listing_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col relative border-2 border-red-100 hover:shadow-md transition-shadow">
+              <div className="h-48 bg-gradient-to-r from-red-50 to-orange-50 relative flex items-center justify-center border-b border-gray-100">
+                <span className="text-red-200 text-4xl">❤️</span>
+              </div>
               <button 
                 onClick={() => removeFavourite(listing.listing_id)}
-                className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-50 text-red-500"
+                className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-50 text-red-500 z-10 transition-transform active:scale-95"
                 title="Remove from Favourites"
               >
                 ❤️
               </button>
               
-              <div className="p-6 flex-1 pt-12">
+              <div className="p-6 flex-1">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="text-lg font-bold text-gray-900 truncate">
