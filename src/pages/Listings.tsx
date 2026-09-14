@@ -5,6 +5,7 @@ import type { Listing, PaginatedResponse } from '../types';
 import { useFavourites } from '../hooks/useFavourites';
 import { useAuth } from '../context/AuthContext';
 import SkeletonCard from '../components/SkeletonCard';
+import PropertyCard from '../components/PropertyCard';
 
 // All localities from the dataset
 const LOCALITIES = [
@@ -182,56 +183,27 @@ export default function Listings() {
           // Skeleton loaders
           Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
-          displayedListings.map((listing, idx) => {
-            const isFav = isFavourite(listing.listing_id);
-            return (
-              <div key={`${listing.listing_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col relative hover:shadow-md transition-shadow">
-                {/* Image Placeholder */}
-                <div className="h-48 bg-gradient-to-r from-blue-50 to-indigo-50 relative flex items-center justify-center border-b border-gray-100">
-                  <span className="text-gray-300">
-                    <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                  </span>
-                </div>
-                
-                <button
-                  onClick={() => isFav ? removeFavourite(listing.listing_id) : addFavourite(listing)}
-                  className="absolute top-4 right-4 bg-white p-2 rounded-full shadow hover:bg-gray-50 z-10 transition-transform active:scale-95"
-                title={isFav ? "Remove from Favourites" : "Add to Favourites"}
-              >
-                {isFav ? '❤️' : '🤍'}
-              </button>
-
-              <Link to={`/listings/${listing.listing_id}`} className="p-6 flex-1 pt-12 block">
-                <div className="flex justify-between items-start">
-                  <div className="pr-8">
-                    <h3 className="text-lg font-bold text-gray-900 truncate">
-                      {listing.apartment_name || 'Independent Property'}
-                    </h3>
-                    <p className="text-sm text-gray-500 capitalize">{listing.locality}</p>
-                  </div>
-                  <span className={`shrink-0 px-2 py-1 text-xs font-semibold rounded-full ${listing.is_live ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {listing.is_live ? 'Live' : 'Off'}
-                  </span>
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-gray-600">
-                  <div><span className="font-semibold text-gray-900">{listing.bedroom}</span> BHK</div>
-                  <div><span className="font-semibold text-gray-900">{listing.bathroom}</span> Baths</div>
-                  <div><span className="font-semibold text-gray-900">{listing.carpet_area}</span> sqft</div>
-                  <div className="capitalize">{listing.furnishing?.replace('-', ' ')}</div>
-                </div>
-
-                <div className="mt-4 flex items-baseline justify-between">
-                  <span className="text-2xl font-bold text-blue-600">
-                    ₹{(listing.price / 100000).toFixed(2)}L
-                  </span>
-                  <span className="text-xs text-blue-500 font-medium">View Details →</span>
-                </div>
-              </Link>
-            </div>
-          );
-        })
-      )}
+          displayedListings.map((listing) => (
+            <PropertyCard
+              key={listing.listing_id}
+              id={listing.listing_id}
+              type="listing"
+              title={listing.apartment_name || 'Independent Property'}
+              subtitle={listing.locality}
+              isLive={listing.is_live}
+              priceStr={`₹${(listing.price / 100000).toFixed(2)}L`}
+              isFav={isFavourite(listing.listing_id)}
+              onToggleFav={() => isFavourite(listing.listing_id) ? removeFavourite(listing.listing_id) : addFavourite(listing)}
+              path={`/listings/${listing.listing_id}`}
+              metrics={[
+                { label: 'Bedrooms', value: `${listing.bedroom || '-'} BHK` },
+                { label: 'Bathrooms', value: `${listing.bathroom || '-'} Baths` },
+                { label: 'Area', value: `${listing.carpet_area || '-'} sqft` },
+                { label: 'Furnishing', value: (listing.furnishing || '-').replace('-', ' ') }
+              ]}
+            />
+          ))
+        )}
       </div>
 
       {displayedListings.length === 0 && !loading && (

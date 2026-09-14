@@ -4,6 +4,7 @@ import type { Project, PaginatedResponse } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import SkeletonCard from '../components/SkeletonCard';
+import PropertyCard from '../components/PropertyCard';
 
 export default function Projects() {
   const { isAuthenticated } = useAuth();
@@ -68,43 +69,20 @@ export default function Projects() {
           Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
           projects.map((project, idx) => (
-            <div key={`${project.project_id}-${idx}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-              <div className="h-48 bg-gradient-to-r from-purple-50 to-pink-50 relative flex items-center justify-center border-b border-gray-100">
-                <span className="text-gray-300">
-                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                </span>
-              </div>
-              <div className="p-6 flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900 truncate">
-                    {project.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 font-medium">{project.builder_name}</p>
-                </div>
-              </div>
-              
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-600">
-                <div className="col-span-2">
-                  <span className="text-gray-500">Location:</span> <span className="font-semibold text-gray-900">{project.locality}, {project.city}</span>
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">{project.total_listings}</span> Properties
-                </div>
-              </div>
-
-              <div className="mt-6 border-t pt-4">
-                <div className="text-sm text-gray-500 mb-1">Price Range</div>
-                <div className="text-lg font-bold text-blue-600">
-                  {/* DEFENSIVE PROGRAMMING: We discovered price_max is in Crores, not Rupees! */}
-                  ₹{(project.price_min).toFixed(2)}L - ₹{(project.price_max * 100).toFixed(2)}L
-                </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  *Max price converted from Crores (API Anomaly Fix)
-                </div>
-              </div>
-            </div>
-          </div>
+            <PropertyCard
+              key={`${project.project_id}-${idx}`}
+              id={project.project_id}
+              type="project"
+              title={project.name || 'Project'}
+              subtitle={project.builder_name || 'Builder'}
+              badgeStr={project.locality}
+              priceStr={`₹${(project.price_min).toFixed(1)}L - ₹${(project.price_max * 100).toFixed(1)}L`}
+              path={`/projects/${project.project_id}`}
+              metrics={[
+                { label: 'City', value: project.city || '-' },
+                { label: 'Listings', value: project.total_listings || '0' }
+              ]}
+            />
           ))
         )}
       </div>

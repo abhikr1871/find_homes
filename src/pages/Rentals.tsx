@@ -4,6 +4,7 @@ import type { Rental, PaginatedResponse } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import SkeletonCard from '../components/SkeletonCard';
+import PropertyCard from '../components/PropertyCard';
 
 export default function Rentals() {
   const { isAuthenticated } = useAuth();
@@ -68,48 +69,22 @@ export default function Rentals() {
           Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
           rentals.map((rental, idx) => (
-            <Link key={`${rental.listing_id}-${idx}`} to={`/rentals/${rental.listing_id}`} className="bg-white rounded-lg shadow overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-              <div className="h-48 bg-gradient-to-r from-emerald-50 to-teal-50 relative flex items-center justify-center border-b border-gray-100">
-                <span className="text-gray-300">
-                  <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                </span>
-              </div>
-              <div className="p-6 flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 truncate">
-                    {rental.apartment_name || 'Independent Property'}
-                  </h3>
-                  <p className="text-sm text-gray-500">{rental.locality}</p>
-                </div>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${rental.is_live ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {rental.is_live ? 'Live' : 'Offline'}
-                </span>
-              </div>
-              
-              <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-600">
-                <div>
-                  <span className="font-semibold text-gray-900">{rental.bedroom}</span> BHK
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">{rental.bathroom}</span> Baths
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-900">{rental.carpet_area}</span> sqft
-                </div>
-                <div className="truncate">
-                  <span className="font-semibold text-gray-900">{rental.furnishing}</span>
-                </div>
-              </div>
-
-              <div className="mt-6 border-t pt-4">
-                <div className="text-sm text-gray-500 mb-1">Monthly Rent</div>
-                <span className="text-2xl font-bold text-blue-600">
-                  ₹{rental.price.toLocaleString()}
-                </span>
-              </div>
-            </div>
-          </Link>
+            <PropertyCard
+              key={`${rental.listing_id}-${idx}`}
+              id={rental.listing_id}
+              type="rental"
+              title={rental.apartment_name || 'Independent Property'}
+              subtitle={rental.locality}
+              isLive={rental.is_live}
+              priceStr={`₹${rental.price.toLocaleString()}`}
+              path={`/rentals/${rental.listing_id}`}
+              metrics={[
+                { label: 'Bedrooms', value: `${rental.bedroom || '-'} BHK` },
+                { label: 'Bathrooms', value: `${rental.bathroom || '-'} Baths` },
+                { label: 'Area', value: `${rental.carpet_area || '-'} sqft` },
+                { label: 'Furnishing', value: (rental.furnishing || '-').replace('-', ' ') }
+              ]}
+            />
           ))
         )}
       </div>
